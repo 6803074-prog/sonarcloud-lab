@@ -26,8 +26,8 @@ jobs:
       - name: SonarScanner Begin
         run: |
           dotnet sonarscanner begin `
-            /k:"<6803074-prog_sonarcloud-lab>" `
-            /o:"<6803074-prog>" `
+            /k: "<6803074-prog_sonarcloud-lab>" `
+            /o: "<6803074-prog>" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.cpd.cs.minimumTokens=40 `
             /d:sonar.cpd.cs.minimumLines=5 `
