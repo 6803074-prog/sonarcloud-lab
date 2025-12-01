@@ -22,20 +22,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # ========== ВСТАНОВЛЕННЯ СТАРОЇ ВЕРСІЇ ==========
-      - name: Install SonarScanner 10.3.0
-        run: |
-          dotnet tool uninstall --global dotnet-sonarscanner 2>$null || true
-          dotnet tool install --global dotnet-sonarscanner --version 10.3.0
-          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
-      # ===============================================
-
       # 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
         run: |
           dotnet sonarscanner begin `
-            /d:sonar.projectKey="<Project Key>" `
-            /d:sonar.organization="<Organization Key>" `
+            /k:"<6803074-prog_sonarcloud-lab>" `
+            /o:"<6803074-prog>" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.cpd.cs.minimumTokens=40 `
             /d:sonar.cpd.cs.minimumLines=5 `
