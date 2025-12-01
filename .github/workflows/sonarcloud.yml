@@ -25,15 +25,15 @@ jobs:
       # 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
         run: |
-          dotnet sonarscanner begin \
-          /k:"6803074-prog_sonarcloud-lab" \
-          /o:"6803074-prog" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" \
-          /d:sonar.cpd.cs.minimumTokens=40 \
-          /d:sonar.cpd.cs.minimumLines=5 \
-          /d:sonar.exclusions=**/bin/**,**/obj/**,**/sonarcloud.yml" \
-          /d:sonar.qualitygate.wait=true
+         dotnet sonarscanner begin \
+         /k:"6880874-prog_sonarcloud-lab" \
+         /o:"6880874-prog" \
+         /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+         /d:sonar.cs.opencover.reportPaths="**/coverage.xml" \
+         /d:sonar.cpd.cs.minimumTokens=40 \
+         /d:sonar.cpd.cs.minimumLines=5 \
+         /d:sonar.exclusions="/bin/**,*/obj/**,**/sonarcloud.yml" \
+         /d:sonar.qualitygate.wait=true
         shell: pwsh
         
       # 2) BUILD & TEST
