@@ -1,51 +1,55 @@
-name: SonarCloud Analysis
+name: SonarCloud analysis
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 permissions:
-  pull-requests: read
-  contents: read
+  pull-requests: read # allows SonarCloud to decorate PRs with analysis results
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Scan
-    runs-on: windows-latest
-    
+  sonar-check:
+    name: Sonar Check
+    runs-on: windows-latest   # безпечно для будь-яких .NET проектів
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner
-    
-    - name: Initialize SonarCloud scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        dotnet sonarscanner begin `
-          /k:"6803074-prog_sonarcloud-lab" `
-          /o:"6803074-prog" `
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 1) BEGIN: SonarScanner for .NET
+      - name: SonarScanner Begin
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+          dotnet sonarscanner begin `
+          /d:sonar.projectKey="6803074-prog_sonarcloud-lab" `
+          /d:sonar.organization="6803074-prog" `
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-          /d:sonar.host.url="https://sonarcloud.io" `
-          /d:sonar.exclusions="**/bin/**,**/obj/**" `
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" `
+          /d:sonar.cpd.cs.minimumTokens=40 `
+          /d:sonar.cpd.cs.minimumLines=5 `
+          /d:sonar.exclusions=**/bin/**,**/obj/**,**/sonarcloud.yml `
           /d:sonar.qualitygate.wait=true
-    
-    - name: Build solution
-      run: dotnet build --configuration Release
-    
-    - name: Finalize SonarCloud scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        shell: pwsh
+      # 2) BUILD & TEST
+      - name: Restore
+        run: dotnet restore NetSdrClient.sln
+      - name: Build
+        run: dotnet build NetSdrClient.sln -c Release --no-restore
+      #- name: Tests with coverage (OpenCover)
+      #  run: |
+      #    dotnet test NetSdrClientAppTests/NetSdrClientAppTests.csproj -c Release --no-build `
+      #      /p:CollectCoverage=true `
+      #      /p:CoverletOutput=TestResults/coverage.xml `
+      #      /p:CoverletOutputFormat=opencover
+      #  shell: pwsh
+      # 3) END: SonarScanner
+      - name: SonarScanner End
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        shell: pwsh
