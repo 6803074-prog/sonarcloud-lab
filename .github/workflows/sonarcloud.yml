@@ -29,8 +29,8 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner
           echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
           dotnet sonarscanner begin `
-          /k:sonar.projectKey="6803074-prog_sonarcloud-lab" `
-          /o:sonar.organization="6803074-prog" `
+          /k:"6803074-prog_sonarcloud-lab" `
+          /o:"6803074-prog" `
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
           /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" `
           /d:sonar.cpd.cs.minimumTokens=40 `
