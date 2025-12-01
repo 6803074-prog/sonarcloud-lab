@@ -2,13 +2,14 @@ name: SonarCloud analysis
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   workflow_dispatch:
 
 permissions:
   pull-requests: read
+  contents: read
 
 jobs:
   sonar-check:
@@ -16,53 +17,51 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
- name: SonarCloud analysis
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-permissions:
-  pull-requests: read
-
-jobs:
-  sonar-check:
-    name: Sonar Check
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      # 1) BEGIN: SonarScanner for .NET
-      - name: SonarScanner Begin
+      # 1) Установка SonarScanner
+      - name: Install SonarScanner
         run: |
           dotnet tool install --global dotnet-sonarscanner
           echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+
+      # 2) Початок аналізу Sonar (ВСТАВ СВОЇ КЛЮЧІ!)
+      - name: SonarScanner Begin
+        run: |
           dotnet sonarscanner begin `
           /k:"6803074-prog_sonarcloud-lab" `
           /o:"6803074-prog" `
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-          /d:sonar.host.url="https://sonarcloud.io"
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" `
+          /d:sonar.exclusions="**/bin/**,**/obj/**,**/.github/**" `
+          /d:sonar.qualitygate.wait=true
         shell: pwsh
-      # 2) BUILD & TEST
-      - name: Restore
-        run: dotnet restore NetSdrClient.sln
-      - name: Build
-        run: dotnet build NetSdrClient.sln -c Release --no-restore
-      # 3) END: SonarScanner
+
+      # 3) Відновлення залежностей
+      - name: Restore dependencies
+        run: dotnet restore
+        # Якщо є конкретний .sln файл: dotnet restore YourSolution.sln
+
+      # 4) Збірка
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+        # Або: dotnet build YourSolution.sln -c Release --no-restore
+
+      # 5) Тести з покриттям (РОЗКОМЕНТУЙТЕ, якщо є тести)
+      # - name: Run tests with coverage
+      #   run: |
+      #     dotnet test --configuration Release --no-build `
+      #       --collect:"XPlat Code Coverage" `
+      #       --results-directory:TestResults `
+      #       -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      #   shell: pwsh
+
+      # 6) Завершення аналізу Sonar
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
