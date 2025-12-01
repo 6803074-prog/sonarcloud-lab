@@ -25,8 +25,7 @@ jobs:
       # 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
         shell: pwsh
-        run: |
-            /dotnet sonarscanner begin `
+        run: dotnet sonarscanner begin `
             /k:6803074-prog_sonarcloud-lab `
             /o:6803074-prog `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
