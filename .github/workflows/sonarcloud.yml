@@ -22,6 +22,30 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+ name: SonarCloud analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read
+
+jobs:
+  sonar-check:
+    name: Sonar Check
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       # 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
         run: |
@@ -32,6 +56,15 @@ jobs:
           /o:"6803074-prog" `
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
           /d:sonar.host.url="https://sonarcloud.io"
+        shell: pwsh
+      # 2) BUILD & TEST
+      - name: Restore
+        run: dotnet restore NetSdrClient.sln
+      - name: Build
+        run: dotnet build NetSdrClient.sln -c Release --no-restore
+      # 3) END: SonarScanner
+      - name: SonarScanner End
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
       # 2) BUILD & TEST
       - name: Restore
