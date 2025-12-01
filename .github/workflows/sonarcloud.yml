@@ -1,4 +1,3 @@
-
 name: SonarCloud analysis
 
 on:
@@ -23,23 +22,26 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-  
-      - run: dotnet sonarscanner begin
-    /k:"6883074-prog_sonarcloud-lab"
-    /o:"6883074-prog"
-    /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-    /d:sonar.cs.opencover.reportPaths="**/coverage.xml"
-    /d:sonar.cpd.cs.minimumTokens=40
-    /d:sonar.cpd.cs.minimumLines=5
-    /d:sonar.exclusions="/bin/**,*/obj/**,**/sonarcloud.yml"
-    /d:sonar.qualitygate.wait=true
+      - name: SonarScanner Begin
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+          dotnet sonarscanner begin `
+          /d:sonar.projectKey="6803074-prog_sonarcloud-lab" `
+          /d:sonar.organization="6803074-prog" `
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" `
+          /d:sonar.cpd.cs.minimumTokens=40 `
+          /d:sonar.cpd.cs.minimumLines=5 `
+          /d:sonar.exclusions=**/bin/**,**/obj/**,**/sonarcloud.yml `
+          /d:sonar.qualitygate.wait=true
         shell: pwsh
-
+      # 2) BUILD & TEST
       - name: Restore
         run: dotnet restore NetSdrClient.sln
       - name: Build
         run: dotnet build NetSdrClient.sln -c Release --no-restore
-   
+  
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
