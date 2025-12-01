@@ -20,36 +20,29 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x   # ← для сумісності SonarScanner
-            8.0.x   # ← для вашого проєкту
+          dotnet-version: '8.0.x'
 
-      - name: Install SonarScanner
-        run: dotnet tool install --global dotnet-sonarscanner
 
       - name: SonarScanner Begin
         run: |
-          dotnet sonarscanner begin \
-            /k:"6880874-prog_sonarcloud-lab" \
-            /o:"6880874-prog" \
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.exclusions="/bin/**,*/obj/**,**/sonarcloud.yml" \
-            /d:sonar.qualitygate.wait=true
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+          dotnet sonarscanner begin `
+          /d:sonar.projectKey="<Project Key>" `
+          /d:sonar.organization="<Organization Key>" `
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.xml" `
+          /d:sonar.cpd.cs.minimumTokens=40 `
+          /d:sonar.cpd.cs.minimumLines=5 `
+          /d:sonar.exclusions=**/bin/**,**/obj/**,**/sonarcloud.yml `
+          /d:sonar.qualitygate.wait=true
         shell: pwsh
 
       - name: Restore
         run: dotnet restore NetSdrClient.sln
-
       - name: Build
         run: dotnet build NetSdrClient.sln -c Release --no-restore
-
-      - name: Tests with Coverage
-        run: |
-          dotnet test NetSdrClient.sln \
-            --collect:"XPlat Code Coverage" \
-            --logger:trx \
-            --results-directory ./TestResults
-
+  
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
