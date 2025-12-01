@@ -25,15 +25,23 @@ jobs:
       # 1) BEGIN: SonarScanner for .NET
 - name: SonarScanner Begin
   shell: pwsh
-  run: dotnet sonarscanner begin /k:6803074-prog_sonarcloud-lab /o:6803074-prog /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cpd.cs.minimumTokens=40 /d:sonar.cpd.cs.minimumLines=5 /d:sonar.exclusions="**/bin/**,**/obj/**,**/sonarcloud.yml" /d:sonar.qualitygate.wait=true
+  run: >
+    dotnet sonarscanner begin
+    /k:6803074-prog_sonarcloud-lab
+    /o:6803074-prog
+    /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    /d:sonar.cpd.cs.minimumTokens=40
+    /d:sonar.cpd.cs.minimumLines=5
+    /d:sonar.exclusions=**/bin/**,**/obj/**,**/sonarcloud.yml
+    /d:sonar.qualitygate.wait=true
 
-      # 2) BUILD & TEST
+ # 2) BUILD & TEST
       - name: Restore
         run: dotnet restore NetSdrClient.sln
       - name: Build
         run: dotnet build NetSdrClient.sln -c Release --no-restore
 
-      # 3) END: SonarScanner
+   # 3) END: SonarScanner
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
