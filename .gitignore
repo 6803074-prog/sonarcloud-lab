@@ -1,0 +1,19 @@
+## .NET ##
+*.swp
+*.[Cc]ache
+*.ilk
+*.log
+*.ncb
+*.suo
+*.user
+*.userprefs
+*.tlh
+*.tmp
+
+# Visual Studio
+.vs/
+Bin/
+Obj/
+TestResults/
+*.csproj.user
+*.vcxproj.user
