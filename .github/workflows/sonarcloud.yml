@@ -48,19 +48,7 @@ jobs:
         run: dotnet build NetSdrClient.sln -c Release --no-restore
         # Якщо є конкретний .sln файл: dotnet restore YourSolution.sln
 
-      # 4) Збірка
-      - name: Build solution
-        run: dotnet build --configuration Release --no-restore
-        # Або: dotnet build YourSolution.sln -c Release --no-restore
-
-      # 5) Тести з покриттям (РОЗКОМЕНТУЙТЕ, якщо є тести)
-      # - name: Run tests with coverage
-      #   run: |
-      #     dotnet test --configuration Release --no-build `
-      #       --collect:"XPlat Code Coverage" `
-      #       --results-directory:TestResults `
-      #       -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-      #   shell: pwsh
+   
 
       # 6) Завершення аналізу Sonar
       - name: SonarScanner End
