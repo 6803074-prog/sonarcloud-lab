@@ -42,8 +42,10 @@ jobs:
         shell: pwsh
 
       # 3) Відновлення залежностей
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore
+        run: dotnet restore NetSdrClient.sln
+      - name: Build
+        run: dotnet build NetSdrClient.sln -c Release --no-restore
         # Якщо є конкретний .sln файл: dotnet restore YourSolution.sln
 
       # 4) Збірка
