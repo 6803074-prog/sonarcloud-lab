@@ -24,14 +24,13 @@ jobs:
           dotnet-version: '8.0.x'
 
       # 1) Установка SonarScanner
-      - name: Install SonarScanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+          
 
       # 2) Початок аналізу Sonar (ВСТАВ СВОЇ КЛЮЧІ!)
       - name: SonarScanner Begin
         run: |
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
           dotnet sonarscanner begin `
           /k:"6803074-prog_sonarcloud-lab" `
           /o:"6803074-prog" `
