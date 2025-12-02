@@ -48,9 +48,10 @@ jobs:
         run: dotnet build NetSdrClient.sln -c Release --no-restore
         # Якщо є конкретний .sln файл: dotnet restore YourSolution.sln
 
-  - name: Build solution
+        # 4) Збірк
+      - name: Build solution
         run: dotnet build --configuration Release --no-restore
-   
+      # Або: dotnet build YourSolution.sln -c Release --no-restore
 
       # 6) Завершення аналізу Sonar
       - name: SonarScanner End
